@@ -26,3 +26,6 @@ Since I'm inexperienced on this my initial thought was to just have pins and con
 
 After installing it, I see that I could have used a single string connector and reduced the amount of wires. However I didn't have this info before installing the components as I only took the car apart after creating all the electronics. So if doing it again I would reduce the number of connectors and re-use some of the ground wires, example Display, pedal and programming buttom.
 
+Parts:
+Motor: https://www.aliexpress.com/item/1005002345878377.html
+ESC: https://www.aliexpress.com/item/3256802671531095.html
