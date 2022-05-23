@@ -31,4 +31,4 @@ Parts:
 
 Motor: 2 x 3670 (size) / 2150kv https://www.aliexpress.com/item/1005002345878377.html  any 36XX motor will fit as they match the bolt pattern of the original motor.
 
-ESC: Got an 100Amp ESC thinking it would be needed, but so far the ESC does not get hot, only the motor https://www.aliexpress.com/item/3256802671531095.html
+ESC: Got an 100Amp BLHELI ESC thinking it would be needed, but so far the ESC does not get hot, only the motor https://www.aliexpress.com/item/3256802671531095.html I use the programming cable of the ESC to enable hi-temp cutoff. I wanted a BLHeli32 ESC but could not find one around $30.
