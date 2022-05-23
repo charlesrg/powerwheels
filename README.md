@@ -29,6 +29,6 @@ After installing it, I see that I could have used a single string connector and 
 Parts:
 
 
-Motor: https://www.aliexpress.com/item/1005002345878377.html
+Motor: 2 x 3670 (size) / 2150kv https://www.aliexpress.com/item/1005002345878377.html  any 36XX motor will fit as they match the bolt pattern of the original motor.
 
-ESC: https://www.aliexpress.com/item/3256802671531095.html
+ESC: Got an 100Amp ESC thinking it would be needed, but so far the ESC does not get hot, only the motor https://www.aliexpress.com/item/3256802671531095.html
