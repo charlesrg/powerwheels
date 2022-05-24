@@ -37,7 +37,19 @@ int tempinC;
 #define ESC2_PIN (26) // connected to ESC control wire
 #define LED_BUILTIN (2) // not defaulted properly for ESP32s/you must define it
 // Note: the following speeds may need to be modified for your particular hardware.
-int fadedPedalValue = 860;
+#define PEDAL_ZERO 1200
+#define PEDAL_MIN 1210
+#define PEDAL_MAX 2940
+#define PEDAL_FULL 2920
+#define PEDAL_CRITICAL 1200
+#define PEDAL_WARNING 1900
+#define BATTERY_CRITICAL 10
+#define BATTERY_WARNING 30
+#define TEMP_MIN 10
+#define TEMP_WARNING 70
+#define TEMP_CRITICAL 75
+#define TEMP_SHUTOFF 80
+int fadedPedalValue = PEDAL_ZERO;
 int programmingMode = 0;
 int  PWM_LOW = 1000; // minimum PWM Signal
 int  MIN_SPEED = PWM_LOW + PWM_LOW / 2; // speed just slow enough to turn motor off
@@ -46,8 +58,8 @@ int  MIN_SPEED = PWM_LOW + PWM_LOW / 2; // speed just slow enough to turn motor 
 #define batPin (35)
 int batteryValue = 0;
 //OTA
-const char* ssid = "WIFI_SSID";
-const char* password = "password";
+const char* ssid = "home";
+const char* password = "macaco2000";
 
 //Acelerator Pedal PIN
 const int pedalPin = 34;
@@ -221,44 +233,48 @@ void loop() {
   pedalValue = analogRead(pedalPin);
   //Serial.println("pedalValue");
   //Serial.println("Check Temp");
-  if (tempinC > 70){
-    if(tempinC > 80){
-      pedalValue=860; //display.println("Temperature Shuttoff");
-    }else if(tempinC >75){
-      if(pedalValue > 1900) {
-        pedalValue=120+0;
+  if (tempinC > TEMP_WARNING){
+    if(tempinC > TEMP_SHUTOFF){
+      pedalValue=PEDAL_ZERO; //display.println("Temperature Shuttoff");
+    }else if(tempinC >TEMP_CRITICAL){
+      if(pedalValue > PEDAL_CRITICAL) {
+        pedalValue=PEDAL_CRITICAL;
       } 
       //display.println("Temperature Critical");
     }else {
       //display.println("Temperature Warning!");
-      if(pedalValue > 1900) {
-        pedalValue=1900;
+      if(pedalValue > PEDAL_WARNING) {
+        pedalValue=PEDAL_WARNING;
       }
     }
+  }else if (tempinC < TEMP_MIN) {
+    if(pedalValue > PEDAL_CRITICAL) {
+      pedalValue=PEDAL_CRITICAL;
+    } 
   }
   //Serial.println("Check Battery");
-  if (batteryPercentage < 20){
+  if (batteryPercentage < BATTERY_WARNING){
     if(batteryPercentage < 1){
-      pedalValue=860;
+      pedalValue=PEDAL_ZERO;
       //display.println("Battery too Low");
-    }else if(batteryPercentage < 10){
-      if(pedalValue > 1900) {
-        pedalValue=1200;
+    }else if(batteryPercentage < BATTERY_CRITICAL){
+      if(pedalValue > PEDAL_CRITICAL) {
+        pedalValue=PEDAL_CRITICAL;
       } 
       //display.println("Battery Critical");
     }else {
       //display.println("Battery Warning!");
-      if(pedalValue > 1900) {
-        pedalValue=1900;
+      if(pedalValue > PEDAL_WARNING) {
+        pedalValue=PEDAL_WARNING;
       }
     }
   }
   //Serial.println("Apply PEdal fade");
   //pedal value varies between 860 and 1200 at rest
-  if (pedalValue < 1200 ){
-    pedalValue=860;
-  }else if (pedalValue > 2920 ){
-    pedalValue=2940;
+  if (pedalValue < PEDAL_MIN ){
+    pedalValue=PEDAL_ZERO;
+  }else if (pedalValue > PEDAL_FULL ){
+    pedalValue=PEDAL_MAX;
   }
   if ( pedalValue >  fadedPedalValue + THROTTLE_FADE ){
       fadedPedalValue+=THROTTLE_FADE; 
@@ -273,10 +289,10 @@ void loop() {
   //display.display();
   if ((goForward == HIGH) && (goReverse == LOW)){
     //ESC commands
-    pedalValue = map(fadedPedalValue, 860, 2940, 1500, 2000); // scale forward motor
+    pedalValue = map(fadedPedalValue, PEDAL_ZERO, PEDAL_MAX, 1500, 2000); // scale forward motor
     myESC2.speed(pedalValue); // sets the ESC speed
     myESC1.speed(pedalValue); // sets the ESC speed
-    //pedalValue = map(fadedPedalValue, 860, 2940, 1500, 1000); // scale inverse motor
+    //pedalValue = map(fadedPedalValue, PEDAL_ZERO, PEDAL_MAX, 1500, 1000); // scale inverse motor
     //myESC1.speed(pedalValue); // sets the ESC speed
   }
   else if ((goReverse == HIGH) && (goForward == LOW)){
@@ -285,10 +301,10 @@ void loop() {
     if (MAX_REVERSE > 0 && fadedPedalValue > MAX_REVERSE) {
       fadedPedalValue = MAX_REVERSE;
     }
-    pedalValue = map(fadedPedalValue, 860, 2940, 1500, 1000); // scale forward motor
+    pedalValue = map(fadedPedalValue, PEDAL_ZERO, PEDAL_MAX, 1500, 1000); // scale forward motor
     myESC2.speed(pedalValue); // sets the ESC speed
     myESC1.speed(pedalValue); // sets the ESC speed
-    //pedalValue = map(fadedPedalValue, 860, 2940, 1500, 2000); // scale reverse motor
+    //pedalValue = map(fadedPedalValue, PEDAL_ZERO, PEDAL_MAX, 1500, 2000); // scale reverse motor
     //myESC1.speed(pedalValue); // sets the ESC speed
   }
   else {
@@ -345,21 +361,21 @@ void TaskUpdateDisplay(void *pvParameters)  { //this is a task
     //sprintf(buffer, "T:%2dC B:%d%%", tempinC, batteryPercentage);
     //display.println(buffer);
     display.setTextSize(1);
-    if (tempinC > 70){
-      if(tempinC > 80){
+    if (tempinC > TEMP_WARNING){
+      if(tempinC > TEMP_SHUTOFF){
         display.println("Temperature Shuttoff");
-      }else if(tempinC >75){
+      }else if(tempinC >TEMP_CRITICAL){
         display.println("Temperature Critical");
       }else {
         display.println("Temperature Warning!");
       }
-    }else if (tempinC < 10) {
-      display.println("Sensor disconnected ?");
+    }else if (tempinC < TEMP_MIN) {
+      display.println("WARNING: Temp Sensor disconnected ?");
     }
-    if (batteryPercentage < 20){
+    if (batteryPercentage < BATTERY_WARNING){
       if(batteryPercentage < 1){
         display.println("Battery too Low");
-      }else if(batteryPercentage < 10){
+      }else if(batteryPercentage < BATTERY_CRITICAL){
         display.println("Battery Critical");
       }else {
         display.println("Battery Warning!");
